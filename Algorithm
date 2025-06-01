@@ -1,0 +1,75 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class ImpedanceCalculator {
+private:
+    double R, L, C;
+    double XL_angle, XC_angle; // Phase angles in degrees
+    const double PI = 3.14159265359;
+    const double W = 2 * PI * 50; // Assuming 50Hz frequency
+
+public:
+    ImpedanceCalculator(double resistance, double inductance, double capacitance, double xl_angle, double xc_angle) {
+        R = resistance;
+        L = inductance;
+        C = capacitance;
+        XL_angle = xl_angle * PI / 180.0; // Convert to radians
+        XC_angle = xc_angle * PI / 180.0; // Convert to radians
+    }
+
+    void calculateImpedance(double& magnitude, double& phase) {
+        double XL = W * L;           // Inductive reactance magnitude
+        double XC = 1 / (W * C);     // Capacitive reactance magnitude
+        
+        // Calculate real and imaginary components
+        double XL_real = XL * cos(XL_angle);
+        double XL_imag = XL * sin(XL_angle);
+        double XC_real = XC * cos(XC_angle);
+        double XC_imag = XC * sin(XC_angle);
+        
+        // Total real and imaginary parts
+        double real = R + (XL_real - XC_real);
+        double imag = XL_imag - XC_imag;
+        
+        // Calculate magnitude and phase
+        magnitude = sqrt(pow(real, 2) + pow(imag, 2));
+        phase = atan2(imag, real) * 180.0 / PI; // Convert to degrees
+    }
+};
+
+int main() {
+    int n;
+    cout << "Enter number of transmission lines: ";
+    cin >> n;
+
+    for (int i = 1; i <= n; ++i) {
+        double r, l, c, xl_angle, xc_angle;
+        cout << "\nTransmission Line #" << i << endl;
+
+        cout << "Enter resistance (R) in ohms: ";
+        cin >> r;
+
+        cout << "Enter inductance (L) in henries: ";
+        cin >> l;
+
+        cout << "Enter capacitance (C) in farads: ";
+        cin >> c;
+
+        cout << "Enter phase angle for XL in degrees: ";
+        cin >> xl_angle;
+
+        cout << "Enter phase angle for XC in degrees: ";
+        cin >> xc_angle;
+
+        ImpedanceCalculator circuit(r, l, c, xl_angle, xc_angle);
+        double magnitude, phase;
+        circuit.calculateImpedance(magnitude, phase);
+
+        cout << "Result for Transmission Line " << i << ":\n";
+        cout << "  Total impedance magnitude = " << magnitude << " ohms" << endl;
+        cout << "  Total impedance phase = " << phase << " degrees\n" << endl;
+    }
+
+    return 0;
+}
